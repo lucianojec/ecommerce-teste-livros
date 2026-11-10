@@ -1,0 +1,34 @@
+{
+  "info": {
+    "_postman_id": "d802f978-b0f4-4c8b-b60b-1866120bcf72",
+    "name": "Livraria QA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "accessToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Público",
+      "item": [
+        { "name": "Listar livros", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/books" } },
+        { "name": "Categorias", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/categories" } }
+      ]
+    },
+    {
+      "name": "Autenticação",
+      "item": [
+        { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"email\":\"cliente@example.com\",\"password\":\"senha-local-de-teste\"}" }, "url": "{{baseUrl}}/api/v1/auth/login" } },
+        { "name": "Meu perfil", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/api/v1/users/me" } }
+      ]
+    },
+    {
+      "name": "Compra",
+      "item": [
+        { "name": "Carrinho", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/api/v1/cart" } },
+        { "name": "Pedidos", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/api/v1/orders" } }
+      ]
+    }
+  ]
+}

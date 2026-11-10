@@ -1,0 +1,200 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Livraria QA API",
+    "version": "1.0.0",
+    "description": "APIs REST para treinamento. A autenticação usa Supabase Auth; pagamentos, frete e transportes são simulados. Use o access_token retornado em /api/v1/auth/login como Bearer token."
+  },
+  "servers": [{ "url": "/", "description": "Ambiente atual" }],
+  "tags": [
+    { "name": "Autenticação" },
+    { "name": "Catálogo" },
+    { "name": "Cliente" },
+    { "name": "Carrinho e pedidos" },
+    { "name": "Administração" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "details": { "type": "array", "items": { "type": "object" } }
+            },
+            "required": ["code", "message"]
+          },
+          "requestId": { "type": "string" }
+        },
+        "required": ["error"]
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Criar conta de cliente",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["full_name", "email", "password", "confirm_password"],
+                "properties": {
+                  "full_name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 10 },
+                  "confirm_password": { "type": "string", "minLength": 10 }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Conta criada" }, "409": { "description": "E-mail já cadastrado" }, "422": { "description": "Dados inválidos" } }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Entrar e obter access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Sessão iniciada; use data.access_token no Authorize" }, "401": { "description": "Credenciais inválidas" } }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["Autenticação"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Encerrar sessão",
+        "responses": { "200": { "description": "Sessão encerrada" }, "401": { "description": "Não autenticado" } }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["Autenticação"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Consultar usuário autenticado",
+        "responses": { "200": { "description": "Usuário atual" }, "401": { "description": "Não autenticado" } }
+      }
+    },
+    "/api/v1/auth/recover": {
+      "post": { "tags": ["Autenticação"], "summary": "Enviar link de recuperação", "responses": { "200": { "description": "Solicitação aceita" }, "422": { "description": "E-mail inválido" } } },
+      "patch": { "tags": ["Autenticação"], "summary": "Atualizar senha com sessão de recuperação", "responses": { "200": { "description": "Senha atualizada" }, "401": { "description": "Link ausente ou expirado" } } }
+    },
+    "/api/v1/books": {
+      "get": {
+        "tags": ["Catálogo"],
+        "summary": "Listar e buscar livros ativos",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 48, "default": 12 } },
+          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["newest", "title"] } }
+        ],
+        "responses": { "200": { "description": "Catálogo paginado" }, "422": { "description": "Parâmetros inválidos" } }
+      }
+    },
+    "/api/v1/books/slug/{slug}": {
+      "get": {
+        "tags": ["Catálogo"],
+        "summary": "Consultar livro por slug",
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Livro" }, "404": { "description": "Livro não encontrado" } }
+      }
+    },
+    "/api/v1/categories": { "get": { "tags": ["Catálogo"], "summary": "Listar categorias", "responses": { "200": { "description": "Categorias ativas" } } } },
+    "/api/v1/authors": { "get": { "tags": ["Catálogo"], "summary": "Listar autores", "responses": { "200": { "description": "Autores" } } } },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": ["Cliente"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Consultar perfil",
+        "responses": { "200": { "description": "Perfil do cliente" }, "401": { "description": "Não autenticado" } }
+      },
+      "patch": {
+        "tags": ["Cliente"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Atualizar nome",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["full_name"], "properties": { "full_name": { "type": "string", "minLength": 2 } } } } } },
+        "responses": { "200": { "description": "Perfil atualizado" }, "401": { "description": "Não autenticado" } }
+      }
+    },
+    "/api/v1/users/me/addresses": {
+      "get": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Listar endereços", "responses": { "200": { "description": "Endereços do cliente" } } },
+      "post": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Cadastrar endereço", "responses": { "201": { "description": "Endereço criado" }, "422": { "description": "Endereço inválido" } } }
+    },
+    "/api/v1/users/me/addresses/{id}": {
+      "patch": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Atualizar endereço próprio", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Endereço atualizado" }, "404": { "description": "Endereço não encontrado" } } },
+      "delete": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Excluir endereço próprio", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "204": { "description": "Endereço removido" } } }
+    },
+    "/api/v1/cart": {
+      "get": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Consultar carrinho persistido", "responses": { "200": { "description": "Carrinho" }, "401": { "description": "Não autenticado" } } },
+      "post": {
+        "tags": ["Carrinho e pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Adicionar variante ao carrinho",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["variant_id"], "properties": { "variant_id": { "type": "string", "format": "uuid" }, "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 } } } } } },
+        "responses": { "201": { "description": "Item adicionado" }, "409": { "description": "Estoque insuficiente" } }
+      },
+      "delete": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Esvaziar carrinho", "responses": { "204": { "description": "Carrinho esvaziado" } } }
+    },
+    "/api/v1/cart/items/{id}": {
+      "patch": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Alterar quantidade", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["quantity"], "properties": { "quantity": { "type": "integer", "minimum": 1, "maximum": 99 } } } } } }, "responses": { "200": { "description": "Quantidade alterada" }, "409": { "description": "Estoque insuficiente" } } },
+      "delete": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Remover item", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "204": { "description": "Item removido" } } }
+    },
+    "/api/v1/wishlist": {
+      "get": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Listar favoritos", "responses": { "200": { "description": "Favoritos próprios" } } },
+      "post": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Salvar favorito", "responses": { "201": { "description": "Favorito salvo" } } }
+    },
+    "/api/v1/wishlist/{bookId}": { "delete": { "tags": ["Cliente"], "security": [{ "bearerAuth": [] }], "summary": "Remover favorito", "parameters": [{ "name": "bookId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "204": { "description": "Favorito removido" } } } },
+    "/api/v1/shipping/quote": { "post": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Calcular frete simulado", "responses": { "200": { "description": "Cotação demonstrativa" }, "422": { "description": "CEP inválido" } } } },
+    "/api/v1/coupons/validate": { "post": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Validar cupom", "responses": { "200": { "description": "Cupom válido" }, "422": { "description": "Cupom não disponível" } } } },
+    "/api/v1/checkout": {
+      "post": {
+        "tags": ["Carrinho e pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Finalizar pedido com pagamento simulado",
+        "parameters": [{ "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string", "minLength": 8, "maxLength": 100 } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["shipping_cents", "payment_method", "address"], "properties": { "shipping_cents": { "type": "integer", "minimum": 0 }, "payment_method": { "type": "string", "enum": ["PIX", "BOLETO", "CARD"] }, "coupon_code": { "type": "string" }, "address": { "type": "object" } } } } } },
+        "responses": { "201": { "description": "Pedido criado atomicamente" }, "409": { "description": "Carrinho vazio ou estoque insuficiente" }, "422": { "description": "Cupom, endereço ou pagamento inválido" } }
+      }
+    },
+    "/api/v1/orders": { "get": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Listar pedidos próprios", "responses": { "200": { "description": "Pedidos do cliente" } } } },
+    "/api/v1/orders/{id}": { "get": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Consultar pedido próprio", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Pedido" }, "404": { "description": "Pedido não encontrado" } } } },
+    "/api/v1/payments/{id}": { "get": { "tags": ["Carrinho e pedidos"], "security": [{ "bearerAuth": [] }], "summary": "Consultar pagamento próprio", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Pagamento" } } } },
+    "/api/v1/payments/{id}/simulate": {
+      "post": {
+        "tags": ["Administração"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Simular resultado de pagamento (ADMIN)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["result"], "properties": { "result": { "type": "string", "enum": ["APPROVED", "DECLINED", "EXPIRED"] } } } } } },
+        "responses": { "200": { "description": "Pagamento simulado" }, "403": { "description": "Requer perfil ADMIN" } }
+      }
+    },
+    "/api/v1/admin/dashboard": { "get": { "tags": ["Administração"], "security": [{ "bearerAuth": [] }], "summary": "Consultar métricas (ADMIN)", "responses": { "200": { "description": "Indicadores do banco" }, "403": { "description": "Requer perfil ADMIN" } } } },
+    "/api/v1/admin/orders": { "get": { "tags": ["Administração"], "security": [{ "bearerAuth": [] }], "summary": "Listar pedidos (ADMIN)", "responses": { "200": { "description": "Pedidos recentes" }, "403": { "description": "Requer perfil ADMIN" } } } },
+    "/api/v1/admin/orders/{id}/status": { "patch": { "tags": ["Administração"], "security": [{ "bearerAuth": [] }], "summary": "Atualizar status permitido (ADMIN)", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }], "responses": { "200": { "description": "Status atualizado" }, "409": { "description": "Transição inválida" } } } },
+    "/api/v1/admin/payments": { "get": { "tags": ["Administração"], "security": [{ "bearerAuth": [] }], "summary": "Listar pagamentos (ADMIN)", "responses": { "200": { "description": "Pagamentos recentes" }, "403": { "description": "Requer perfil ADMIN" } } } }
+  }
+}

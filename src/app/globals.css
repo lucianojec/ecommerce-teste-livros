@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background: #f8f6f0;
+  color: #17221e;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #d8a84e;
+  color: #17221e;
+}
+
+:focus-visible {
+  outline: 3px solid #d8a84e;
+  outline-offset: 3px;
+}
+
+.book-cover {
+  background:
+    radial-gradient(ellipse at 70% 25%, rgb(255 255 255 / 28%), transparent 34%),
+    linear-gradient(145deg, #275844, #132b24 70%);
+  box-shadow: 8px 10px 24px rgb(23 34 30 / 16%);
+}
+
+.book-cover:nth-child(3n + 2) {
+  background: linear-gradient(145deg, #b57847, #573c2b 75%);
+}
+
+.book-cover:nth-child(3n) {
+  background: linear-gradient(145deg, #667d8a, #283c49 75%);
+}
