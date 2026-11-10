@@ -13,16 +13,14 @@ Status atualizado em 10/11/2026. "Implementado" significa código presente no re
 | Pagamentos | Parcialmente implementado | Simulador administrável de aprovado/recusado/expirado; sem gateway real por definição. |
 | Pedidos e painel | Parcialmente implementado | Consulta própria, métricas e transições administrativas; logística/rastreamento não implementados. |
 | Seed previsível | Implementado | `supabase/seed.sql` com 40 livros, casos de estoque e cupons, idempotente. |
-| Migração e políticas | Implementado em arquivo | `supabase/migrations/202611100001_initial_schema.sql`; ainda precisa ser aplicada no projeto remoto. |
+| Migração e políticas | Aplicado | Migration e seed aplicados no projeto Supabase `yztslnvemfbqftblholk` em 10/11/2026 (40 livros, 41 variantes, 5 cupons). |
 | OpenAPI, Swagger e Postman | Implementado parcialmente | Swagger em `/api-docs`; contrato lista a superfície entregue, não todos os endpoints inicialmente propostos. |
 | Testes, lint, typecheck e build | Validado localmente | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd test` (3 testes) e `npm.cmd run build` passaram. `/`, `/livros` e `/api-docs` responderam HTTP 200; `/api/v1/books` respondeu `DATABASE_NOT_READY` (503), como esperado antes da migration. |
-| Deploy Vercel / GitHub Actions | Preparado | Workflow configurado; nenhum deploy ou operação remota foi realizado. |
+| Deploy Vercel / GitHub Actions | Publicado | Produção em https://ecommerce-teste-livros.vercel.app, projeto Vercel conectado ao GitHub (push na `main` publica). |
 | Upload de capas | Parcial | Bucket e policies preparados na migration; interface de upload administrativo pendente. |
 | CRUD admin, suporte, CRM, fidelidade, analytics detalhado e Laboratório QA | Pendente | Ver [limitações conhecidas](./docs/KNOWN_LIMITATIONS.md). |
 
-## Bloqueios externos
+## Pendências manuais
 
-1. Aplicar a migration e o seed no projeto Supabase existente.
-2. Desativar confirmação de e-mail apenas no projeto de treinamento, se desejado.
-3. Criar uma conta ADMIN pela consulta SQL descrita em [ENVIRONMENT.md](./docs/ENVIRONMENT.md).
-4. Configurar as variáveis de ambiente na Vercel e publicar o repositório.
+1. Desativar confirmação de e-mail apenas no projeto de treinamento, se desejado (o SMTP padrão do Supabase limita o envio de e-mails por hora).
+2. Criar uma conta ADMIN pela consulta SQL descrita em [ENVIRONMENT.md](./docs/ENVIRONMENT.md).

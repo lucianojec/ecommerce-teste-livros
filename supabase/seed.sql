@@ -14,6 +14,7 @@ insert into public.authors (name, slug) values
 on conflict (slug) do nothing;
 
 do $seed$
+#variable_conflict use_variable
 declare
   titles text[] := array[
     'A Cidade das Janelas Azuis', 'O Jardim Depois da Chuva', 'Pequeno Atlas das Ideias',

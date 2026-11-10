@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const supabase = await getApiClient(request);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${new URL(appUrl).origin}/recuperar-senha?reset=1`,
+    redirectTo: `${new URL(appUrl).origin}/auth/callback?next=${encodeURIComponent("/recuperar-senha?reset=1")}`,
   });
   if (error) {
     console.error("auth.recovery_failed", { code: error.code ?? "UNKNOWN" });

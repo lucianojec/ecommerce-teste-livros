@@ -7,4 +7,4 @@
 5. Faça o deploy e teste homepage, login, catálogo, carrinho e `/api-docs`.
 6. Configure/atribua administrador manualmente pelo SQL Editor (não há provisionamento automático).
 
-O workflow de GitHub Actions verifica lint, tipos, testes e build sem acessar o banco. Nenhum deploy remoto foi executado por esta implementação.
+O workflow de GitHub Actions verifica lint, tipos, testes e build sem acessar o banco. Produção atual: https://ecommerce-teste-livros.vercel.app. Em **Authentication → URL Configuration**, o Site URL aponta para esse domínio e os redirects permitidos incluem `/**` do domínio de produção, das previews e de `http://localhost:3000`. Links de confirmação e recuperação de senha passam por `/auth/callback`, que cria a sessão e redireciona.

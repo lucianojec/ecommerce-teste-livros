@@ -18,10 +18,14 @@ export async function POST(request: Request) {
   if (!parsed.success) return validationError(parsed.error);
 
   const supabase = await getApiClient(request);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: { data: { full_name: parsed.data.full_name } },
+    options: {
+      data: { full_name: parsed.data.full_name },
+      emailRedirectTo: `${new URL(appUrl).origin}/auth/callback?next=${encodeURIComponent("/minha-conta")}`,
+    },
   });
 
   if (error) {
