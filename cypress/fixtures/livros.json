@@ -1,0 +1,28 @@
+
+{
+  "data": [
+    {
+      "id": "livro-qa-001",
+      "title": "Aprendendo Cypress",
+      "slug": "aprendendo-cypress",
+      "cover_url": null,
+      "description": "Livro fictício para testes automatizados",
+      "authors": ["QA Teste"],
+      "variant": {
+        "id": "variante-qa-001",
+        "sku": "QA-TESTE-001",
+        "format": "Capa comum",
+        "price_cents": 3990,
+        "compare_at_cents": null,
+        "stock_quantity": 10
+      },
+      "rating": 4.5
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 12,
+    "total": 1,
+    "total_pages": 1
+  }
+}
